@@ -1,4 +1,3 @@
-
 # Create a resource group
 resource "azurerm_resource_group" "mtc-rg" {
   name     = "rg-sanyi"
@@ -29,6 +28,8 @@ resource "azurerm_linux_virtual_machine" "mtc-vm" {
   network_interface_ids = [
     azurerm_network_interface.mtc-nic.id
   ]
+
+  custom_data = filebase64("customdata.tpl")
 
   admin_ssh_key {
     username   = "adminuser"
