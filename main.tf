@@ -47,11 +47,26 @@ resource "azurerm_linux_virtual_machine" "mtc-vm" {
     sku       = "22_04-lts"
     version   = "latest"
   }
+
+  provisioner "local-exec" {
+    command = templatefile("${var.os_host}-ssh-script.tpl", {
+      hostname     = self.public_ip_address,
+      user         = "adminuser",
+      identityfile = "~/.ssh/id_rsa"
+    })
+    interpreter = var.os_host == "windows" ? ["bash", "-c"] : ["PowerShell", "-Command"]
+  }
+
   tags = {
     environment = "dev"
   }
 }
 
+data "azurerm_public_ip" "mtc-ip-data" {
+  name                = azurerm_public_ip.mtc-ip.name
+  resource_group_name = azurerm_resource_group.mtc-rg.name
+
+}
 resource "azurerm_subnet" "mtc-subnet-1" {
   name                 = "mtc-subnet-1"
   resource_group_name  = azurerm_resource_group.mtc-rg.name
@@ -164,4 +179,9 @@ resource "azurerm_network_interface" "mtc-nic" {
   tags = {
     environment = "dev"
   }
+}
+
+output "public_ip_address" {
+  value = "${azurerm_linux_virtual_machine.mtc-vm.name}: ${data.azurerm_public_ip.mtc-ip-data.ip_address}"
+
 }
