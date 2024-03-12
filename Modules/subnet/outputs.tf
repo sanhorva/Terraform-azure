@@ -1,5 +1,5 @@
 output "pip" {
-    value =  azurerm_public_ip.mtc-ip    # tomap({name = "127.0.0.1"}) 
+    value =  azurerm_public_ip.mtc-ip 
 }
 
 output "vm" {
